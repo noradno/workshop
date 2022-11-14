@@ -1,0 +1,46 @@
+---
+title: "Bistand fra DAC-land"
+author: "Seksjon for statistikk og analyse"
+format: pdf
+editor: source
+editor_options: 
+  chunk_output_type: console
+---
+
+```{r}
+#| include: false
+
+library(noradstats)
+library(tidyverse)
+library(noradplot)
+```
+
+```{r}
+#| include: false
+#| cache: true
+
+df <- noradstats::get_donors()
+```
+
+```{r}
+#| include: false
+
+df_topten <- df |> 
+  group_by(donor_label_en) |> 
+  summarise(usd_mill = sum(usd_mill)) |> 
+  slice_max(usd_mill, n = 10)
+```
+
+Her er en oversikt over de ti største mottakerlandene i OECDs utviklingskomité i `r unique(df$obs_time)`.
+
+```{r}
+#| echo: false
+
+ggplot(df_topten, aes(x = fct_reorder(donor_label_en, usd_mill), y = usd_mill, fill = donor_label_en)) +
+  geom_col() +
+  coord_flip() +
+  scale_fill_norad() +
+  theme_norad() +
+  theme(legend.position = "none")
+```
+
